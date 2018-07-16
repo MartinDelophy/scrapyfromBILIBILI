@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+
+</head>
+<body>
+	<h1>老番茄视屏数据爬虫</h1>
+	<div id="total"></div>
+	<script src="jquery.js"></script>
+	<script src="build/dist/echarts.js"></script>
+	<script>
+	var personalData;
+    $.ajax({
+    type: 'GET',
+    url: "/api/v1/datasource",
+    async: false,
+    success: function(data){
+    	personalData =JSON.parse(data).data
+        
+    },
+    error: function(){
+        console.log("failure")
+    }
+    })
+    </script>
+	<script type="text/javascript">
+	
+	 // 路径配置
+        require.config({
+            paths: {
+                echarts: "build/dist"
+            }
+        });
+         // 使用
+        require(
+            [
+                'echarts',
+                'echarts/chart/bar' // 使用柱状图就加载bar模块，按需加载
+            ],
+            function (ec) {
+                // 基于准备好的dom，初始化echarts图表
+             
+                for(var i=0;i<personalData.count;i++){
+                //	循环开始
+                //各种数据绑定
+                var divId="main"+i;
+                var div ="<div id="+divId+" style='height:400px'></div>";
+                $("#total").append(div)
+                 var myChart = ec.init(document.getElementById(divId)); 
+                 arrTitle =personalData.list[i].video_list.map((x)=>{return x.title})
+                  arrCount =personalData.list[i].video_list.map((x)=>{return parseInt(x.view )})
+                 console.log("test",arrCount,arrTitle)
+               var option = {
+                    tooltip: {
+                        show: true
+                    },
+                    legend: {
+                        data:[personalData.list[i].name]
+                    },
+                    xAxis : [
+                        {
+                            type : 'category',
+                            data : arrTitle
+                        }
+                    ],
+                    yAxis : [
+                        {
+                            type : 'value'
+                        }
+                    ],
+                    series : [
+                        {
+                            "name":"观看量",
+                            "type":"bar",
+                            "data": arrCount
+                        }
+                    ]
+                };
+                // 为echarts对象加载数据 
+                myChart.setOption(option); 
+
+                //循环结束
+                }  
+                
+            }
+        );
+
+
+
+	</script>
+</body>
+</html>
